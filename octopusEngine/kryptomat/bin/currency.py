@@ -13,7 +13,7 @@ from octopusEngine.kryptomat.currency import (BitcoinCurrency,
                                               NotEnoughTransactionConfirmations,
                                               UncomfirmedTransaction,
                                               convert_currency)
-from octupusEngine.wallets import LTC, BTC
+from octopusEngine.wallets import LTC, BTC
 
 def emulator(args=None):
     curr = input("What currency do you want to use? (BTC, LTC): ")
