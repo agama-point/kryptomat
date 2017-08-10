@@ -22,6 +22,9 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("-v", "--debug", help="increase output verbosity",
                     action="store_true")
+parser.add_argument("-qr", "--qr-code-output-path",
+                    help="The path where to generate QR code. Default: qrcode.png",
+                    default="qrcode.png")
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +55,8 @@ def emulator(args=None):
     if curr == "LTC":
         qrGet = "litecoin:" + curr_obj.address + "?amount=" + str(amount)
 
-    os.system('qrencode -o qrcode.png ' + qrGet)
-    img = Image.open('qrcode.png')
+    os.system('qrencode -o %s ' % args.qr_code_output_path + qrGet)
+    img = Image.open(args.qr_code_output_path)
     img.show(title="QR Payment")
 
     print("Waiting for payment 30s.")
