@@ -102,14 +102,22 @@ class BlockrCurrency(object):
         logger.debug("Obtaining info for address: %s" % self.address)
         return self.api.address(address or self.address)["data"]
 
-    def get_last_transaction(self, address=None):
+    def get_last_transaction(self, since=None, address=None):
         """Get last transaction.
 
         parameters:
+        * since datetime: If specified returns last tx only if it is after this date
         * address str: passes to self.get_address()
         """
-        logger.debug("Obtaining last tx for address: %s" % (address or self.address))
-        return self.get_address(address)["last_tx"]
+        if since is not None:
+            logger.debug("Obtaining last tx for address: %s since %s" % (
+                address or self.address, since))
+        else:
+            logger.debug("Obtaining last tx for address: %s" % (address or self.address))
+        last_tx = self.get_address(address)["last_tx"]
+        if since is None:
+            return last_tx
+        return last_tx if self.get_time_of_transaction(last_tx) > since else None
 
     def get_transaction(self, transaction_id):
         """Get transaction out of it's ID.
@@ -121,7 +129,7 @@ class BlockrCurrency(object):
         return self.api.transaction(transaction_id)["data"]
 
     def _use_or_get_transaction(self, transaction):
-        if type(transaction) == str or type(transaction) == unicode:
+        if type(transaction) == str:
             return self.get_transaction(transaction)
         elif type(transaction) == dict:
             if "trade" in transaction.keys():
@@ -149,9 +157,9 @@ class BlockrCurrency(object):
         tx = self._use_or_get_transaction(transaction)
         output = self._get_my_output(tx)
         # The amount can be higher e.g. Tip
-        if output.get("amount", None) >= value and \
+        if output.get("amount", 0) >= value and \
                 tx["confirmations"] >= confirmations and \
-                not tx["is_unconfirmed"]:
+                ((tx["is_unconfirmed"] and confirmations == 0) or not tx["is_unconfirmed"]):
             logger.debug("Succes tx is valid.")
             return True
         elif not tx["confirmations"] >= confirmations:
@@ -161,8 +169,11 @@ class BlockrCurrency(object):
             logger.debug("The value is to low. (%f)" % output.get("amount", 0))
             raise InvalidTransactionValue(output.get("amount", 0), value)
         elif tx["is_unconfirmed"]:
-            logger.debug("There is no confirmations yet for tx.")
-            raise UncomfirmedTransaction
+            if confirmations == 0:
+                return False
+            else:
+                logger.debug("There is no confirmations yet for tx.")
+                raise UncomfirmedTransaction
         else:
             print(output.get("amount", None), value, tx["confirmations"] >= confirmations)
 
