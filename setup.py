@@ -50,7 +50,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'currency_demo=octopusEngine.kryptomat.bin.currency:demo'
+            'currency_demo=octopusEngine.kryptomat.bin.currency:emulator'
         ]
     },
     dependency_links=[

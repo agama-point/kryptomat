@@ -13,7 +13,7 @@ from octopusEngine.kryptomat.currency import (BitcoinCurrency,
                                               NotEnoughTransactionConfirmations,
                                               UncomfirmedTransaction,
                                               convert_currency)
-
+from octupusEngine.wallets import LTC, BTC
 
 def emulator(args=None):
     curr = input("What currency do you want to use? (BTC, LTC): ")
@@ -22,9 +22,9 @@ def emulator(args=None):
         sys.exit(1)
 
     if curr == "BTC":
-        curr_obj = BitcoinCurrency(address=input("Wallet: "))
+        curr_obj = BitcoinCurrency(address=BTC)
     if curr == "LTC":
-        curr_obj = LitecoinCurrency(address=input("Wallet: "))
+        curr_obj = LitecoinCurrency(address=LTC)
 
     amount = float(input("Enter the amount in %s: " % curr))
     print("Obtaining convert rates...")
