@@ -63,7 +63,7 @@ class InvalidTransactionValue(TransactionException):
     def __str__(self):
         """Convert Exception to str."""
         return "Transaction is for different price wanted %d, but transaction gives only %d" % (
-            self.wanted, self.price
+            self.wanted, self.value
         )
 
 
@@ -108,7 +108,7 @@ class BlockrCurrency(object):
         parameters:
         * address str: passes to self.get_address()
         """
-        logger.debug("Obtaining last tx for address: %s" % address or self.address)
+        logger.debug("Obtaining last tx for address: %s" % (address or self.address))
         return self.get_address(address)["last_tx"]
 
     def get_transaction(self, transaction_id):
