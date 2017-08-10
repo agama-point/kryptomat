@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import argparse
+import logging
 import os
 import sys
 import time
@@ -13,9 +15,24 @@ from octopusEngine.kryptomat.currency import (BitcoinCurrency,
                                               NotEnoughTransactionConfirmations,
                                               UncomfirmedTransaction,
                                               convert_currency)
-from octopusEngine.wallets import LTC, BTC
+from octopusEngine.wallets import BTC, LTC
+
+parser = argparse.ArgumentParser(
+    description='A test script for octopusEngine.kryptomat.currency lib'
+)
+parser.add_argument("-v", "--debug", help="increase output verbosity",
+                    action="store_true")
+
+logger = logging.getLogger(__name__)
+
 
 def emulator(args=None):
+    args = parser.parse_args()
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug('Debug mode enabled.')
+
     curr = input("What currency do you want to use? (BTC, LTC): ")
     if curr not in ["BTC", "LTC"]:
         print("Invalid currency")
@@ -67,4 +84,3 @@ def emulator(args=None):
 
 if __name__ == "__main__":
     emulator()
-

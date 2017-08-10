@@ -2,6 +2,7 @@
 from __future__ import division, unicode_literals
 
 import json
+import logging
 
 import requests
 
@@ -11,6 +12,7 @@ from octopusEngine.kryptomat.utils import first, parse_utc
 
 BITSTAMP_TICKER_BASE_URL = "https://www.bitstamp.net/api/v2/ticker_hour/{base}{to}/"
 
+logger = logging.getLogger(__name__)
 
 class TransactionException(Exception):
     """Base Exception for Transaction errors."""
@@ -97,6 +99,7 @@ class BlockrCurrency(object):
         parameters:
         * address str: if specified this address use it instead of self.address
         """
+        logger.debug("Obtaining info for address: %s" % self.address)
         return self.api.address(address or self.address)["data"]
 
     def get_last_transaction(self, address=None):
@@ -105,6 +108,7 @@ class BlockrCurrency(object):
         parameters:
         * address str: passes to self.get_address()
         """
+        logger.debug("Obtaining last tx for address: %s" % address or self.address)
         return self.get_address(address)["last_tx"]
 
     def get_transaction(self, transaction_id):
@@ -113,6 +117,7 @@ class BlockrCurrency(object):
         parameters:
         * transaction_id str: ID of transaction
         """
+        logger.debug("Get info about tx id: %s" % transaction_id)
         return self.api.transaction(transaction_id)["data"]
 
     def _use_or_get_transaction(self, transaction):
@@ -140,18 +145,23 @@ class BlockrCurrency(object):
         * InvalidTransactionValue           - Transaction value is lesser
         * UnconfirmedTransaction            - Transaction isn't confirmed yet.
         """
+        logger.debug("Check if tx is valid. value: %d confirmations: %d" % (value, confirmations))
         tx = self._use_or_get_transaction(transaction)
         output = self._get_my_output(tx)
         # The amount can be higher e.g. Tip
         if output.get("amount", None) >= value and \
                 tx["confirmations"] >= confirmations and \
                 not tx["is_unconfirmed"]:
+            logger.debug("Succes tx is valid.")
             return True
         elif not tx["confirmations"] >= confirmations:
+            logger.debug("There is not yet enough confirmations for tx.")
             raise NotEnoughTransactionConfirmations(tx["confirmations"], confirmations)
-        elif not output.get("amount", None) >= value:
+        elif not output.get("amount", 0) >= value:
+            logger.debug("The value is to low. (%f)" % output.get("amount", 0))
             raise InvalidTransactionValue(output.get("amount", 0), value)
         elif tx["is_unconfirmed"]:
+            logger.debug("There is no confirmations yet for tx.")
             raise UncomfirmedTransaction
         else:
             print(output.get("amount", None), value, tx["confirmations"] >= confirmations)
@@ -242,6 +252,7 @@ def convert_currency(base, to, amount):
                   bitstamp (usd, eur) or Europen Bank
     amount float: The amount of money
     """
+    logger.debug("Converting currency from %s to %s amount %f" % (base, to, amount))
     assert base.lower() in ["ltc", "btc", "xrp"]
 
     if base.lower() in ["ltc", "xrp"] and to.lower() == "btc":
