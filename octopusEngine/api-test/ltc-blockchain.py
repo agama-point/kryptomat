@@ -2,7 +2,7 @@
 # 2017/09 - RPi3 (wifi)
 # /dev/ttyAMA0 previously used to access# https://github.com/octopusengine/simpleBitcoinMachine
 # ing.Jan Copak - Czechrepublic / Prague
-# octopusengine.eu | newreality.eu
+# octopusengine.org | newreality.eu
 #--------------------------------------------
 
 #block-test01 - 2016-09 - main idea
