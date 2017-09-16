@@ -1,4 +1,10 @@
 # ------------------------------
+# 2017/09 - RPi3 (wifi)
+# /dev/ttyAMA0 previously used to access the UART now connects to Bluetooth.
+# The miniUART is now available on /dev/ttyS0.
+#
+#
+print("Nextion display write test")
 import sys, os, subprocess, time, datetime
 
 #mport urllib2 #course
@@ -96,10 +102,9 @@ def nexRead():
    frn = open(intranetNex,"r")
    nexread = frn.read()
    frn.close()
-
-   print "nexRead() ="+ nexread
-   if (nexread<>"00"):
-     return nexread  
+    
+   if (nxRead<>"00"):
+     return nxRead  
      #fwn = open(intranetNex,"w")  
      #fws.write("00")
      #fws.close()
@@ -107,16 +112,18 @@ def nexRead():
      return "99"
    #frn.close()
 
+# thread for reading
 thrnx = Thread(target=nexth)
 thrnx.start()
 
 #-----------------------------------------
 
-
- 
-
 neXcmd("page select")
-neXtxt("ts0","12321")
-
+i=0
+while i<10:
+  print(i)	
+  neXtxt("ts0",str(i))
+  i +=1
+  time.sleep(0.7)
 
 #-------------------------end --------------
